@@ -304,7 +304,7 @@ export function SkincareRoutineBuilder() {
       setRoutine(result);
       setIsGenerating(false);
       toast({
-        title: "Your SkinIQ routine is ready!",
+        title: "Your DermIQ routine is ready!",
         description: "Scroll down to see your morning and night routines.",
       });
     }, 1200);
@@ -429,7 +429,7 @@ export function SkincareRoutineBuilder() {
       setRoutine(result);
       setIsGenerating(false);
       toast({
-        title: "SkinIQ routine updated!",
+        title: "DermIQ routine updated!",
         description: "Regenerated based on your skin progress data.",
       });
     }, 1200);
@@ -973,7 +973,7 @@ export function SkincareRoutineBuilder() {
               <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 text-primary text-xs font-semibold px-3 py-1.5 mb-4">
                 <Sparkles className="h-3.5 w-3.5" /> Personalized for you
               </div>
-              <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">Your SkinIQ Routine</h2>
+              <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">Your DermIQ Routine</h2>
               <p className="text-muted-foreground mt-2">
                 Tailored for <span className="text-primary font-semibold">{skinType.join(" + ")}</span> skin
                 {acneType && ` · ${ACNE_TYPES.find(t => t.id === acneType)?.name}`}

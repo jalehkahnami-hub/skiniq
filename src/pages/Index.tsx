@@ -8,11 +8,11 @@ const Index = () => {
       <header className="mx-auto max-w-6xl px-4 sm:px-6 pt-12 sm:pt-20 text-center sm:text-left">
         <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3.5 py-1.5 text-xs font-semibold text-primary shadow-sm backdrop-blur">
           <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
-          SkinIQ — Personalized for you
+          DermIQ — Personalized for you
         </div>
         <h1 className="mt-5 text-balance text-4xl font-bold tracking-tight sm:text-6xl leading-[1.1]">
           Build your perfect<br className="hidden sm:block" />
-          <span className="text-primary"> SkinIQ routine</span>
+          <span className="text-primary"> DermIQ routine</span>
         </h1>
         <p className="mt-5 max-w-xl text-balance text-sm text-muted-foreground sm:text-base leading-relaxed">
           Tell us your skin type and concerns. We'll create a personalized AM/PM routine with product recommendations tailored to your needs and budget.

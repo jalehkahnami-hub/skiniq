@@ -19,7 +19,7 @@ const TESTIMONIALS = [
   {
     name: "Alex T.",
     skinType: "Combination",
-    quote: "I was spending way too much on products that didn't work together. SkinIQ built me a budget-friendly routine that actually makes sense.",
+    quote: "I was spending way too much on products that didn't work together. DermIQ built me a budget-friendly routine that actually makes sense.",
     rating: 5,
     avatar: "AT",
   },
@@ -40,7 +40,7 @@ export function Testimonials() {
           Real people, real routines
         </h2>
         <p className="mt-3 text-muted-foreground text-sm sm:text-base">
-          Join thousands building smarter routines with SkinIQ.
+          Join thousands building smarter routines with DermIQ.
         </p>
       </div>
 
