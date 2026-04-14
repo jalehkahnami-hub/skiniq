@@ -1,0 +1,140 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+  Design system (HSL only).
+  Skincare / editorial calm: warm canvas + rose brand + teal science accent.
+*/
+
+@layer base {
+  :root {
+    --background: 24 33% 98%;
+    --foreground: 222 28% 14%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 28% 14%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 28% 14%;
+
+    --primary: 343 62% 46%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 24 26% 93%;
+    --secondary-foreground: 222 28% 14%;
+
+    --muted: 24 24% 95%;
+    --muted-foreground: 224 14% 42%;
+
+    --accent: 168 40% 92%;
+    --accent-foreground: 222 28% 14%;
+
+    --destructive: 0 84% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 24 18% 88%;
+    --input: 24 18% 88%;
+    --ring: 343 62% 46%;
+
+    --radius: 0.9rem;
+
+    /* Extended tokens */
+    --primary-glow: 343 74% 62%;
+    --brand-2: 168 60% 34%;
+    --surface: 0 0% 100%;
+    --surface-2: 24 26% 96%;
+
+    /* Gradients & shadows */
+    --gradient-hero: radial-gradient(1200px circle at var(--mx, 20%) var(--my, 10%), hsl(var(--primary-glow) / 0.35), transparent 55%),
+      radial-gradient(900px circle at 70% 35%, hsl(var(--brand-2) / 0.20), transparent 60%),
+      linear-gradient(180deg, hsl(var(--background)), hsl(var(--background)));
+    --shadow-elev: 0 18px 55px -25px hsl(var(--foreground) / 0.25);
+    --shadow-soft: 0 10px 30px -18px hsl(var(--foreground) / 0.18);
+
+    /* Sidebar tokens (kept for shadcn/sidebar component compatibility) */
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 343 62% 46%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 24 24% 95%;
+    --sidebar-accent-foreground: 222 28% 14%;
+    --sidebar-border: 24 18% 88%;
+    --sidebar-ring: 343 74% 62%;
+  }
+
+  .dark {
+    --background: 222 30% 7%;
+    --foreground: 24 24% 96%;
+
+    --card: 222 26% 10%;
+    --card-foreground: 24 24% 96%;
+
+    --popover: 222 26% 10%;
+    --popover-foreground: 24 24% 96%;
+
+    --primary: 343 72% 62%;
+    --primary-foreground: 222 30% 7%;
+
+    --secondary: 222 20% 16%;
+    --secondary-foreground: 24 24% 96%;
+
+    --muted: 222 20% 16%;
+    --muted-foreground: 24 12% 72%;
+
+    --accent: 168 28% 18%;
+    --accent-foreground: 24 24% 96%;
+
+    --destructive: 0 70% 42%;
+    --destructive-foreground: 24 24% 96%;
+
+    --border: 222 18% 18%;
+    --input: 222 18% 18%;
+    --ring: 343 72% 62%;
+
+    --primary-glow: 343 82% 68%;
+    --brand-2: 168 60% 52%;
+    --surface: 222 26% 10%;
+    --surface-2: 222 20% 14%;
+
+    --gradient-hero: radial-gradient(1200px circle at var(--mx, 25%) var(--my, 15%), hsl(var(--primary-glow) / 0.30), transparent 55%),
+      radial-gradient(900px circle at 70% 35%, hsl(var(--brand-2) / 0.18), transparent 60%),
+      linear-gradient(180deg, hsl(var(--background)), hsl(var(--background)));
+    --shadow-elev: 0 18px 55px -25px hsl(0 0% 0% / 0.55);
+    --shadow-soft: 0 10px 30px -18px hsl(0 0% 0% / 0.45);
+
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 343 72% 62%;
+    --sidebar-primary-foreground: 222 30% 7%;
+    --sidebar-accent: 222 20% 16%;
+    --sidebar-accent-foreground: 24 24% 96%;
+    --sidebar-border: 222 18% 18%;
+    --sidebar-ring: 343 82% 68%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .bg-hero-gradient {
+    background-image: var(--gradient-hero);
+  }
+  .shadow-elev {
+    box-shadow: var(--shadow-elev);
+  }
+  .shadow-soft {
+    box-shadow: var(--shadow-soft);
+  }
+  .text-balance {
+    text-wrap: balance;
+  }
+}
