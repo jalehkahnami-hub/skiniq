@@ -157,8 +157,26 @@ function generateBeginnerRoutine(profile: SkincareProfile): GeneratedRoutine {
   // 4. Sunscreen
   const sunscreen = pickBestProduct(profile, "Sunscreen");
 
-  const morning: Product[] = [cleanser, treatment, moisturizer, sunscreen].filter(Boolean) as Product[];
-  const nightEveryNight: Product[] = [cleanser, treatment, moisturizer].filter(Boolean) as Product[];
+  // Merge owned products — owned products replace recommended ones of the same category
+  const ownedTypes = new Set(profile.ownedProducts.map(p => p.type));
+  const baseAM = [cleanser, treatment, moisturizer, sunscreen].filter(Boolean) as Product[];
+  const basePM = [cleanser, treatment, moisturizer].filter(Boolean) as Product[];
+
+  // Replace any recommended product with owned product of same type, then append remaining owned
+  const mergeOwned = (base: Product[]): Product[] => {
+    const result = base.map(p => {
+      const owned = profile.ownedProducts.find(op => op.type === p.type);
+      return owned || p;
+    });
+    // Add owned products of types not already in the routine
+    profile.ownedProducts.forEach(op => {
+      if (!result.find(p => p.type === op.type)) result.push(op);
+    });
+    return result;
+  };
+
+  const morning: Product[] = mergeOwned(baseAM);
+  const nightEveryNight: Product[] = mergeOwned(basePM).filter(p => p.type !== "Sunscreen");
 
   const partialRoutine = { morning, nightEveryNight, night2x: [] as Product[], night3x: [] as Product[] };
   return { ...partialRoutine, barrierScore: calculateBarrierScore(partialRoutine, profile) };
@@ -207,8 +225,22 @@ function generateStandardRoutine(profile: SkincareProfile): GeneratedRoutine {
   const moisturizer = pickBestProduct(profile, "Moisturizer");
   const sunscreen = pickBestProduct(profile, "Sunscreen");
 
-  const morning: Product[] = [cleanser, toner, amSerum, eyeCream, moisturizer, sunscreen].filter(Boolean) as Product[];
-  const nightEveryNight: Product[] = [cleanser, toner, pmSerum, eyeCream, moisturizer].filter(Boolean) as Product[];
+  const baseAM2 = [cleanser, toner, amSerum, eyeCream, moisturizer, sunscreen].filter(Boolean) as Product[];
+  const basePM2 = [cleanser, toner, pmSerum, eyeCream, moisturizer].filter(Boolean) as Product[];
+
+  const mergeOwned2 = (base: Product[]): Product[] => {
+    const result = base.map(p => {
+      const owned = profile.ownedProducts.find(op => op.type === p.type);
+      return owned || p;
+    });
+    profile.ownedProducts.forEach(op => {
+      if (!result.find(p => p.type === op.type)) result.push(op);
+    });
+    return result;
+  };
+
+  const morning: Product[] = mergeOwned2(baseAM2);
+  const nightEveryNight: Product[] = mergeOwned2(basePM2).filter(p => p.type !== "Sunscreen");
 
   const partialRoutine2 = { morning, nightEveryNight, night2x: [] as Product[], night3x: [] as Product[] };
   return { ...partialRoutine2, barrierScore: calculateBarrierScore(partialRoutine2, profile) };
