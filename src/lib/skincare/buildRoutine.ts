@@ -1,6 +1,6 @@
 import type { CatalogProduct } from "./catalog";
 import { CATALOG } from "./catalog";
-import type { AcneType, BudgetRange, Concern, GeneratedRoutine, Product, RoutineLevel, SkincareProfile, SkinType } from "./types";
+import type { AcneType, BarrierScore, BudgetRange, Concern, GeneratedRoutine, Product, RoutineLevel, SkincareProfile, SkinType } from "./types";
 
 function findProduct(name: string): Product | null {
   const found = CATALOG.find(p => p.name === name);
@@ -51,7 +51,76 @@ function pickBestProduct(profile: SkincareProfile, category: CatalogProduct["cat
     clean: best.clean,
     price: best.price,
     affiliateUrl: best.affiliateUrl,
+    reason: buildReason(best, profile),
   };
+}
+
+// ─── REASONING CHIP ───────────────────────────────────────────────────────
+function buildReason(product: { category: string; tags?: { skinTypes: string[]; concerns: string[]; budgets: string[] } }, profile: SkincareProfile): string {
+  const parts: string[] = [];
+  
+  // Skin type match
+  const skinMatches = profile.skinType.filter(st => product.tags?.skinTypes.includes(st));
+  if (skinMatches.length > 0) parts.push(skinMatches[0].toLowerCase() + " skin");
+  
+  // Concern match  
+  const concernMatches = profile.concerns.filter(c => product.tags?.concerns.includes(c));
+  if (concernMatches.length > 0) parts.push(concernMatches[0].toLowerCase());
+  
+  // Budget
+  const budgetLabels: Record<string, string> = { budget: "under $30", mid: "mid-range", luxury: "luxury", mixed: "your budget" };
+  if (product.tags?.budgets.includes(profile.budget)) parts.push(budgetLabels[profile.budget] || "");
+
+  if (parts.length === 0) return "matches your profile";
+  return parts.filter(Boolean).slice(0, 2).join(" · ");
+}
+
+// ─── BARRIER SCORE ─────────────────────────────────────────────────────────
+export function calculateBarrierScore(routine: Omit<GeneratedRoutine, "barrierScore">, profile: SkincareProfile): BarrierScore {
+  let score = 60; // baseline
+  const breakdown: BarrierScore["breakdown"] = [];
+
+  const allProducts = [...routine.morning, ...routine.nightEveryNight, ...routine.night2x, ...routine.night3x];
+  
+  const hasCleanser = allProducts.some(p => p.type === "Cleanser");
+  const hasMoisturizer = allProducts.some(p => p.type === "Moisturizer");
+  const hasSunscreen = allProducts.some(p => p.type === "Sunscreen");
+  const hasRetinol = allProducts.some(p => p.type === "Retinol");
+  const hasExfoliant = allProducts.some(p => p.type === "Exfoliant");
+  const hasHA = allProducts.some(p => p.type === "Hyaluronic Acid");
+  const hasNiacinamide = allProducts.some(p => p.type === "Niacinamide");
+  const activesCount = [hasRetinol, hasExfoliant].filter(Boolean).length;
+
+  if (hasCleanser) { score += 5; breakdown.push({ factor: "Cleanser included", impact: "positive" }); }
+  if (hasMoisturizer) { score += 10; breakdown.push({ factor: "Moisturizer seals barrier", impact: "positive" }); }
+  if (hasSunscreen) { score += 10; breakdown.push({ factor: "SPF protects daily", impact: "positive" }); }
+  if (hasHA) { score += 8; breakdown.push({ factor: "Hyaluronic acid hydrates", impact: "positive" }); }
+  if (hasNiacinamide) { score += 5; breakdown.push({ factor: "Niacinamide strengthens barrier", impact: "positive" }); }
+  
+  if (activesCount === 0) { 
+    score += 5; 
+    breakdown.push({ factor: "No actives — low irritation risk", impact: "positive" }); 
+  } else if (activesCount === 1) { 
+    score += 2;
+    breakdown.push({ factor: "1 active — well managed", impact: "neutral" });
+  } else { 
+    score -= 8; 
+    breakdown.push({ factor: "Multiple actives — risk of over-exfoliation", impact: "negative" }); 
+  }
+
+  // Routine level modifier
+  if (profile.routineLevel === "beginner") { score += 5; breakdown.push({ factor: "Simple routine — easy to maintain", impact: "positive" }); }
+  if (profile.routineLevel === "advanced") { score -= 3; breakdown.push({ factor: "Advanced routine — needs discipline", impact: "neutral" }); }
+
+  score = Math.min(100, Math.max(0, score));
+
+  let label: string;
+  let color: BarrierScore["color"];
+  if (score >= 75) { label = "Well balanced"; color = "green"; }
+  else if (score >= 50) { label = "Mostly balanced"; color = "amber"; }
+  else { label = "Needs attention"; color = "red"; }
+
+  return { score, label, color, breakdown };
 }
 
 // ─── BEGINNER ──────────────────────────────────────────────────────────────
@@ -91,7 +160,8 @@ function generateBeginnerRoutine(profile: SkincareProfile): GeneratedRoutine {
   const morning: Product[] = [cleanser, treatment, moisturizer, sunscreen].filter(Boolean) as Product[];
   const nightEveryNight: Product[] = [cleanser, treatment, moisturizer].filter(Boolean) as Product[];
 
-  return { morning, nightEveryNight, night2x: [], night3x: [] };
+  const partialRoutine = { morning, nightEveryNight, night2x: [] as Product[], night3x: [] as Product[] };
+  return { ...partialRoutine, barrierScore: calculateBarrierScore(partialRoutine, profile) };
 }
 
 // ─── STANDARD ──────────────────────────────────────────────────────────────
@@ -140,7 +210,8 @@ function generateStandardRoutine(profile: SkincareProfile): GeneratedRoutine {
   const morning: Product[] = [cleanser, toner, amSerum, eyeCream, moisturizer, sunscreen].filter(Boolean) as Product[];
   const nightEveryNight: Product[] = [cleanser, toner, pmSerum, eyeCream, moisturizer].filter(Boolean) as Product[];
 
-  return { morning, nightEveryNight, night2x: [], night3x: [] };
+  const partialRoutine2 = { morning, nightEveryNight, night2x: [] as Product[], night3x: [] as Product[] };
+  return { ...partialRoutine2, barrierScore: calculateBarrierScore(partialRoutine2, profile) };
 }
 
 // ─── ADVANCED ──────────────────────────────────────────────────────────────
@@ -315,7 +386,8 @@ function generateAdvancedRoutine(profile: SkincareProfile): GeneratedRoutine {
     if (p && !nightAdded.has(p.name)) nightEveryNight.push(p);
   });
 
-  return { morning, nightEveryNight, night2x, night3x };
+  const advancedRoutine = { morning, nightEveryNight, night2x, night3x };
+  return { ...advancedRoutine, barrierScore: calculateBarrierScore(advancedRoutine, profile) };
 }
 
 // ─── PUBLIC API ────────────────────────────────────────────────────────────

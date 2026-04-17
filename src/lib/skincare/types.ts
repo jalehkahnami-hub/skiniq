@@ -50,6 +50,14 @@ export type Product = {
   affiliateUrl?: string;
   useTime?: "morning" | "night" | "both";
   benefits?: string;
+  reason?: string; // Routine reasoning chip
+};
+
+export type BarrierScore = {
+  score: number; // 0-100
+  label: string; // e.g. "Well balanced"
+  color: "green" | "amber" | "red";
+  breakdown: { factor: string; impact: "positive" | "neutral" | "negative" }[];
 };
 
 export type RoutineStep = {
@@ -75,6 +83,7 @@ export type GeneratedRoutine = {
   nightEveryNight: Product[];
   night2x: Product[]; // Retinol days (Mon/Thu)
   night3x: Product[]; // Exfoliant days (Tue/Fri/Sun)
+  barrierScore: BarrierScore;
 };
 
 export type ContextFactors = {

@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from "react";
-import { ChevronRight, Sparkles, Sun, Moon, Calendar, X, Search, ShoppingCart, ExternalLink, Crown, Check, Clipboard, ArrowLeftRight, RefreshCw } from "lucide-react";
+import { ChevronRight, Sparkles, Sun, Moon, Calendar, X, Search, ShoppingCart, ExternalLink, Crown, Check, Clipboard, ArrowLeftRight, RefreshCw, FlaskConical } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,8 @@ import { IngredientConflicts } from "@/components/skincare/IngredientConflicts";
 import { SkeletonRoutine } from "@/components/skincare/SkeletonRoutine";
 import { ProgressTracker } from "@/components/skincare/ProgressTracker";
 import { ProductComparison } from "@/components/skincare/ProductComparison";
+import { BarrierScoreCard } from "@/components/skincare/BarrierScoreCard";
+import { IngredientModal } from "@/components/skincare/IngredientModal";
 import { getRecentEntries, getProgressSummary } from "@/lib/skincare/progressTypes";
 
 import {
@@ -205,6 +207,7 @@ export function SkincareRoutineBuilder() {
   const [isPremium, setIsPremium] = useState(false);
   const [showFlareUpModal, setShowFlareUpModal] = useState(false);
   const [showComparison, setShowComparison] = useState(false);
+  const [ingredientProduct, setIngredientProduct] = useState<import("@/lib/skincare/types").Product | null>(null);
   
   const hasConcernAcne = concerns.includes("Acne");
   const [isGenerating, setIsGenerating] = useState(false);
@@ -1032,6 +1035,11 @@ export function SkincareRoutineBuilder() {
               </div>
             )}
 
+            {/* Barrier Score */}
+            {routine.barrierScore && (
+              <BarrierScoreCard score={routine.barrierScore} />
+            )}
+
             {/* Ingredient Conflicts */}
             <IngredientConflicts routine={routine} />
             <div className="grid gap-6 lg:grid-cols-2">
@@ -1064,15 +1072,21 @@ export function SkincareRoutineBuilder() {
                           <p className="text-xs text-muted-foreground mt-0.5">
                             {product.type} · {product.brand}
                           </p>
-                          <p className="text-xs text-muted-foreground/80 mt-1.5 leading-relaxed">
-                            {getProductExplanation(product).purpose}
-                          </p>
+                          {product.reason && (
+                            <p className="text-[10px] text-primary/70 font-medium mt-1">→ {product.reason}</p>
+                          )}
                           <div className="flex items-center gap-1.5 mt-2.5 flex-wrap">
                             {product.price && (
                               <span className="text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full font-semibold">
                                 ${product.price}
                               </span>
                             )}
+                            <button
+                              onClick={() => setIngredientProduct(product)}
+                              className="text-xs text-muted-foreground hover:text-primary px-2 py-0.5 rounded-full flex items-center gap-1 transition-colors hover:bg-primary/8"
+                            >
+                              <FlaskConical className="h-3 w-3" /> ingredients
+                            </button>
                             {product.affiliateUrl && (
                               <button
                                 onClick={() => addToCart(product)}
@@ -1130,15 +1144,21 @@ export function SkincareRoutineBuilder() {
                           <p className="text-xs text-muted-foreground mt-0.5">
                             {product.type} · {product.brand}
                           </p>
-                          <p className="text-xs text-muted-foreground/80 mt-1.5 leading-relaxed">
-                            {getProductExplanation(product).purpose}
-                          </p>
+                          {product.reason && (
+                            <p className="text-[10px] text-primary/70 font-medium mt-1">→ {product.reason}</p>
+                          )}
                           <div className="flex items-center gap-1.5 mt-2.5 flex-wrap">
                             {product.price && (
                               <span className="text-xs bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded-full font-semibold">
                                 ${product.price}
                               </span>
                             )}
+                            <button
+                              onClick={() => setIngredientProduct(product)}
+                              className="text-xs text-muted-foreground hover:text-primary px-2 py-0.5 rounded-full flex items-center gap-1 transition-colors hover:bg-primary/8"
+                            >
+                              <FlaskConical className="h-3 w-3" /> ingredients
+                            </button>
                             {product.affiliateUrl && (
                               <button
                                 onClick={() => addToCart(product)}
@@ -1364,6 +1384,14 @@ export function SkincareRoutineBuilder() {
         </div>
       )}
       
+      {/* Ingredient Modal */}
+      {ingredientProduct && (
+        <IngredientModal
+          product={ingredientProduct}
+          onClose={() => setIngredientProduct(null)}
+        />
+      )}
+
       {/* Product Comparison Modal */}
       {showComparison && (
         <ProductComparison
