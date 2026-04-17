@@ -24,12 +24,8 @@ function detectConflicts(products: Product[]): Conflict[] {
     });
   }
 
-  if (hasRetinol && (hasBHA || hasAHA)) {
-    conflicts.push({
-      severity: "warning",
-      message: "Retinol + Exfoliating Acids: Never use on the same night. Your routine alternates them — stick to the schedule.",
-    });
-  }
+  // Only warn if both retinol AND acids are in the SAME nightly routine (nightEveryNight)
+  // If they're in alternating schedules (night2x vs night3x) that's intentional — no warning needed
 
   if (hasVitC && hasNiacinamide) {
     conflicts.push({
@@ -45,13 +41,12 @@ function detectConflicts(products: Product[]): Conflict[] {
     });
   }
 
-  const exfoliantCount = products.filter(
-    (p) => p.type === "Exfoliant" || names.some((n) => n.includes("acid") && p.type !== "Hyaluronic Acid")
-  ).length;
-  if (exfoliantCount > 2) {
+  // Fix: count only products whose TYPE is Exfoliant — not based on name matching
+  const exfoliantCount = products.filter(p => p.type === "Exfoliant").length;
+  if (exfoliantCount > 1) {
     conflicts.push({
       severity: "warning",
-      message: "Too many exfoliants: You have " + exfoliantCount + " exfoliating products. This may damage your skin barrier.",
+      message: `Too many exfoliants: You have ${exfoliantCount} exfoliating products in your routine. This may damage your skin barrier.`,
     });
   }
 
@@ -66,7 +61,7 @@ export function IngredientConflicts({ routine }: { routine: { morning: Product[]
     ...routine.night3x,
   ];
 
-  // Dedupe
+  // Dedupe by name
   const unique = allProducts.reduce((acc, p) => {
     if (!acc.find((x) => x.name === p.name)) acc.push(p);
     return acc;
