@@ -26,8 +26,9 @@ const Index = () => {
       <Testimonials />
 
       <footer className="px-4 sm:px-6 pb-10">
-        <div className="mx-auto max-w-6xl rounded-2xl border bg-card/70 p-5 text-sm text-muted-foreground shadow-soft backdrop-blur">
-          This is educational and not medical advice. If you have persistent irritation, severe acne, or conditions like eczema or rosacea, consider consulting a dermatologist.
+        <div className="mx-auto max-w-6xl rounded-2xl border bg-card/70 p-5 text-sm text-muted-foreground shadow-soft backdrop-blur space-y-2">
+          <p>This is educational and not medical advice. If you have persistent irritation, severe acne, or conditions like eczema or rosacea, consider consulting a dermatologist.</p>
+          <p className="text-xs text-muted-foreground/70">DermIQ uses affiliate links — we may earn a small commission if you purchase through our links, at no extra cost to you. Product prices are approximate and may vary.</p>
         </div>
       </footer>
     </HeroBackdrop>
