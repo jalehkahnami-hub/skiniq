@@ -37,11 +37,22 @@ function scoreProduct(p: CatalogProduct, profile: SkincareProfile): number {
 }
 
 function pickBestProduct(profile: SkincareProfile, category: CatalogProduct["category"]): Product | null {
-  const items = CATALOG
-    .filter(p => p.category === category)
+  const all = CATALOG.filter(p => p.category === category);
+
+  // For non-mixed budgets, restrict to products tagged for that tier first.
+  // This ensures luxury users get luxury products, not high-scoring budget ones.
+  let pool = profile.budget === "mixed" || !profile.budget
+    ? all
+    : all.filter(p => p.tags.budgets.includes(profile.budget));
+
+  // Fall back to full category pool if no budget-matched products exist
+  if (pool.length === 0) pool = all;
+
+  const items = pool
     .map(p => ({ p, s: scoreProduct(p, profile) }))
     .sort((a, b) => b.s - a.s)
     .filter(x => x.s > 0);
+
   if (items.length === 0) return null;
   const best = items[0].p;
   return {

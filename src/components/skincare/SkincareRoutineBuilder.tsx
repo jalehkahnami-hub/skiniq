@@ -1,5 +1,6 @@
 import { useState, useMemo, useCallback } from "react";
-import { ChevronRight, Sparkles, Sun, Moon, Calendar, X, Search, ShoppingCart, ExternalLink, Crown, Check, Clipboard, ArrowLeftRight, RefreshCw, FlaskConical } from "lucide-react";
+import { ChevronRight, Sparkles, Sun, Moon, Calendar, X, Search, ShoppingCart, ExternalLink, Crown, Check, Clipboard, ArrowLeftRight, RefreshCw, FlaskConical, Leaf, Zap, Gem, Tag, Layers, Star } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
@@ -44,14 +45,14 @@ import type {
   ProductCategory,
 } from "@/lib/skincare/types";
 
-const ROUTINE_LEVELS: { id: RoutineLevel; name: string; tagline: string; description: string; steps: string; icon: string; color: string }[] = [
+const ROUTINE_LEVELS: { id: RoutineLevel; name: string; tagline: string; description: string; steps: string; Icon: LucideIcon; color: string }[] = [
   {
     id: "beginner",
     name: "Start Simple",
     tagline: "Just getting started",
     description: "4 essential steps. Build a consistent habit before adding anything else. No actives, no complicated schedules.",
     steps: "Cleanser → Treatment Serum → Moisturizer → SPF",
-    icon: "🌱",
+    Icon: Leaf,
     color: "emerald",
   },
   {
@@ -60,7 +61,7 @@ const ROUTINE_LEVELS: { id: RoutineLevel; name: string; tagline: string; descrip
     tagline: "Ready to level up",
     description: "5–7 steps with a targeted serum and optional toner. Includes vitamin C or niacinamide — no retinol yet.",
     steps: "Cleanser → Toner → Serum → Eye Cream* → Moisturizer → SPF",
-    icon: "✨",
+    Icon: Zap,
     color: "primary",
   },
   {
@@ -69,10 +70,17 @@ const ROUTINE_LEVELS: { id: RoutineLevel; name: string; tagline: string; descrip
     tagline: "Comfortable with actives",
     description: "The complete protocol with retinol, exfoliants on a rotating schedule, and all categories. For experienced users only.",
     steps: "Cleanser → Toner → Essence → Serums → Retinol/Exfoliant nights → Eye Cream → Moisturizer → SPF",
-    icon: "🔬",
+    Icon: FlaskConical,
     color: "purple",
   },
 ];
+
+const BUDGET_ICONS: Record<string, LucideIcon> = {
+  budget: Tag,
+  mid: Star,
+  luxury: Gem,
+  mixed: Layers,
+};
 
 const STEP_LABELS = ["Skin Type", "Concerns", "Acne Type", "Budget", "Routine Level", "Products", "Routine"];
 
@@ -620,7 +628,9 @@ export function SkincareRoutineBuilder() {
             description="This helps us recommend products in your price range."
           >
             <div className="grid gap-3 sm:grid-cols-2">
-              {BUDGET_RANGES.map((range) => (
+              {BUDGET_RANGES.map((range) => {
+                const BudgetIcon = BUDGET_ICONS[range.id] ?? Tag;
+                return (
                 <button
                   key={range.id}
                   onClick={() => setBudget(range.id)}
@@ -636,19 +646,22 @@ export function SkincareRoutineBuilder() {
                     </span>
                   )}
                   <div className="flex items-start gap-3">
-                    <span className="text-3xl">{range.icon}</span>
+                    <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <BudgetIcon className="h-4 w-4 text-primary" />
+                    </div>
                     <div>
                       <div className="font-semibold text-base">{range.name}</div>
                       <p className="text-sm text-muted-foreground mt-1">{range.desc}</p>
                       {range.id === "mixed" && (
                         <p className="text-xs text-primary mt-2 font-medium">
-                          💡 Invest in actives, save on basics
+                          Invest in actives, save on basics
                         </p>
                       )}
                     </div>
                   </div>
                 </button>
-              ))}
+                );
+              })}
             </div>
             
             {budget && (
@@ -668,7 +681,9 @@ export function SkincareRoutineBuilder() {
             description="This shapes how many steps and which actives go into your routine."
           >
             <div className="grid gap-3">
-              {ROUTINE_LEVELS.map((level) => (
+              {ROUTINE_LEVELS.map((level) => {
+                const LevelIcon = level.Icon;
+                return (
                 <button
                   key={level.id}
                   onClick={() => setRoutineLevel(level.id)}
@@ -690,7 +705,13 @@ export function SkincareRoutineBuilder() {
                     </span>
                   )}
                   <div className="flex items-start gap-4">
-                    <span className="text-3xl">{level.icon}</span>
+                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5 ${
+                      level.color === "emerald" ? "bg-emerald-100" : level.color === "purple" ? "bg-purple-100" : "bg-primary/10"
+                    }`}>
+                      <LevelIcon className={`h-4.5 w-4.5 ${
+                        level.color === "emerald" ? "text-emerald-600" : level.color === "purple" ? "text-purple-600" : "text-primary"
+                      }`} />
+                    </div>
                     <div className="flex-1 min-w-0 pr-6">
                       <div className="flex items-center gap-2 mb-0.5">
                         <span className="font-bold text-base">{level.name}</span>
@@ -709,7 +730,8 @@ export function SkincareRoutineBuilder() {
                     </div>
                   </div>
                 </button>
-              ))}
+                );
+              })}
             </div>
 
             {routineLevel && (
@@ -1014,15 +1036,19 @@ export function SkincareRoutineBuilder() {
                 Tailored for <span className="text-primary font-semibold">{skinType.join(" + ")}</span> skin
                 {acneType && ` · ${ACNE_TYPES.find(t => t.id === acneType)?.name}`}
               </p>
-              {routineLevel && (
-                <div className={`inline-flex items-center gap-1.5 mt-2 text-xs font-semibold px-3 py-1 rounded-full ${
-                  routineLevel === "beginner" ? "bg-emerald-100 text-emerald-700"
-                  : routineLevel === "advanced" ? "bg-purple-100 text-purple-700"
-                  : "bg-primary/10 text-primary"
-                }`}>
-                  {ROUTINE_LEVELS.find(l => l.id === routineLevel)?.icon} {ROUTINE_LEVELS.find(l => l.id === routineLevel)?.name} routine
-                </div>
-              )}
+              {routineLevel && (() => {
+                const level = ROUTINE_LEVELS.find(l => l.id === routineLevel);
+                const LevelIcon = level?.Icon;
+                return (
+                  <div className={`inline-flex items-center gap-1.5 mt-2 text-xs font-semibold px-3 py-1 rounded-full ${
+                    routineLevel === "beginner" ? "bg-emerald-100 text-emerald-700"
+                    : routineLevel === "advanced" ? "bg-purple-100 text-purple-700"
+                    : "bg-primary/10 text-primary"
+                  }`}>
+                    {LevelIcon && <LevelIcon className="h-3 w-3" />} {level?.name} routine
+                  </div>
+                );
+              })()}
               <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-2 mt-4">
                 <Button variant="outline" onClick={copyRoutine} className="w-full sm:w-auto">
                   <Clipboard className="mr-2 h-4 w-4" /> Copy Routine
@@ -1046,7 +1072,9 @@ export function SkincareRoutineBuilder() {
             {/* Beginner tip banner */}
             {routineLevel === "beginner" && (
               <div className="mb-4 rounded-2xl bg-emerald-50 border border-emerald-200 p-4 flex items-start gap-3">
-                <span className="text-2xl">🌱</span>
+                <div className="w-8 h-8 rounded-xl bg-emerald-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <Leaf className="h-4 w-4 text-emerald-600" />
+                </div>
                 <div>
                   <p className="font-semibold text-sm text-emerald-900">Start here — keep it consistent</p>
                   <p className="text-xs text-emerald-700 mt-1 leading-relaxed">
@@ -1058,7 +1086,9 @@ export function SkincareRoutineBuilder() {
 
             {routineLevel === "advanced" && (
               <div className="mb-4 rounded-2xl bg-purple-50 border border-purple-200 p-4 flex items-start gap-3">
-                <span className="text-2xl">🔬</span>
+                <div className="w-8 h-8 rounded-xl bg-purple-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <FlaskConical className="h-4 w-4 text-purple-600" />
+                </div>
                 <div>
                   <p className="font-semibold text-sm text-purple-900">Advanced routine — introduce actives slowly</p>
                   <p className="text-xs text-purple-700 mt-1 leading-relaxed">

@@ -304,10 +304,10 @@ export const ACNE_TYPES = [
 ];
 
 export const BUDGET_RANGES = [
-  { id: "budget" as const, name: "Budget-Friendly", desc: "$5-25 per product", icon: "💰", priceRange: [0, 25] },
-  { id: "mid" as const, name: "Mid-Range", desc: "$25-60 per product", icon: "💎", priceRange: [25, 60] },
-  { id: "luxury" as const, name: "Luxury", desc: "$60-150+ per product", icon: "✨", priceRange: [60, 500] },
-  { id: "mixed" as const, name: "Mixed Budget", desc: "Splurge on actives, save on basics", icon: "🎯", priceRange: [0, 500] },
+  { id: "budget" as const, name: "Budget-Friendly", desc: "$5-25 per product", priceRange: [0, 25] },
+  { id: "mid" as const, name: "Mid-Range", desc: "$25-60 per product", priceRange: [25, 60] },
+  { id: "luxury" as const, name: "Luxury", desc: "$60-150+ per product", priceRange: [60, 500] },
+  { id: "mixed" as const, name: "Mixed Budget", desc: "Splurge on actives, save on basics", priceRange: [0, 500] },
 ];
 
 export const PRODUCT_TYPES: ProductCategory[] = [
