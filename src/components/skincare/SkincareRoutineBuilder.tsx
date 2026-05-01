@@ -79,15 +79,24 @@ const STEP_LABELS = ["Skin Type", "Concerns", "Acne Type", "Budget", "Routine Le
 function ProgressBar({ step, hasConcernAcne }: { step: number; hasConcernAcne: boolean }) {
   const steps = hasConcernAcne ? STEP_LABELS : STEP_LABELS.filter(s => s !== "Acne Type");
   const progress = Math.min(step / steps.length, 1);
-  
+
   return (
     <div className="mb-10">
-      <div className="flex justify-between items-start mb-4">
+      {/* Mobile: step counter text */}
+      <div className="flex items-center justify-between mb-3 sm:hidden">
+        <span className="text-xs font-semibold text-primary">
+          Step {Math.min(step, steps.length)} of {steps.length}
+        </span>
+        <span className="text-xs text-muted-foreground">{steps[Math.min(step, steps.length) - 1]}</span>
+      </div>
+
+      {/* Desktop: full step labels */}
+      <div className="hidden sm:flex justify-between items-start mb-4">
         {steps.map((label, idx) => {
           const stepNum = idx + 1;
           const isActive = step === stepNum || (step === 3 && !hasConcernAcne && idx === 2);
           const isComplete = step > stepNum;
-          
+
           return (
             <div key={label} className="flex flex-col items-center gap-2 flex-1">
               <motion.div
@@ -112,7 +121,31 @@ function ProgressBar({ step, hasConcernAcne }: { step: number; hasConcernAcne: b
           );
         })}
       </div>
-      <div className="h-1.5 bg-muted rounded-full overflow-hidden mx-4">
+
+      {/* Mobile: dot indicators only */}
+      <div className="flex justify-between items-center mb-3 sm:hidden px-1">
+        {steps.map((label, idx) => {
+          const stepNum = idx + 1;
+          const isActive = step === stepNum;
+          const isComplete = step > stepNum;
+          return (
+            <motion.div
+              key={label}
+              className={`rounded-full transition-all duration-300 ${
+                isComplete
+                  ? "w-3 h-3 bg-primary"
+                  : isActive
+                  ? "w-4 h-4 bg-primary ring-4 ring-primary/20"
+                  : "w-2.5 h-2.5 bg-muted"
+              }`}
+              animate={isActive ? { scale: 1.2 } : { scale: 1 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            />
+          );
+        })}
+      </div>
+
+      <div className="h-1.5 bg-muted rounded-full overflow-hidden mx-1 sm:mx-4">
         <motion.div
           className="h-full rounded-full"
           style={{ background: "linear-gradient(90deg, hsl(var(--primary)), hsl(var(--primary-glow)))" }}
@@ -668,7 +701,7 @@ export function SkincareRoutineBuilder() {
                         }`}>{level.tagline}</span>
                       </div>
                       <p className="text-sm text-muted-foreground leading-relaxed">{level.description}</p>
-                      <p className={`text-xs font-mono mt-2 ${
+                      <p className={`text-xs font-mono mt-2 break-words whitespace-normal leading-relaxed ${
                         level.color === "emerald" ? "text-emerald-700"
                         : level.color === "purple" ? "text-purple-700"
                         : "text-primary"
@@ -906,19 +939,19 @@ export function SkincareRoutineBuilder() {
             {shoppingCart.length > 0 && (
               <Card className="mb-6 border-primary/15 bg-gradient-to-r from-primary/5 to-accent/30 shadow-sm">
                 <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center">
+                  <div className="flex flex-wrap items-center gap-3">
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                         <ShoppingCart className="h-4 w-4 text-primary" />
                       </div>
-                      <div>
+                      <div className="min-w-0">
                         <p className="font-semibold text-sm">Shopping Cart</p>
                         <p className="text-xs text-muted-foreground">
                           {shoppingCart.length} item{shoppingCart.length !== 1 ? "s" : ""} · ${cartTotal.toFixed(2)}
                         </p>
                       </div>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 shrink-0">
                       <Button variant="outline" size="sm" onClick={() => setShowCart(!showCart)}>
                         {showCart ? "Hide" : "View"}
                       </Button>
@@ -990,8 +1023,8 @@ export function SkincareRoutineBuilder() {
                   {ROUTINE_LEVELS.find(l => l.id === routineLevel)?.icon} {ROUTINE_LEVELS.find(l => l.id === routineLevel)?.name} routine
                 </div>
               )}
-              <div className="flex flex-wrap justify-center gap-2 mt-4">
-                <Button variant="outline" onClick={copyRoutine}>
+              <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-2 mt-4">
+                <Button variant="outline" onClick={copyRoutine} className="w-full sm:w-auto">
                   <Clipboard className="mr-2 h-4 w-4" /> Copy Routine
                 </Button>
                 <RoutineExport
@@ -1001,10 +1034,10 @@ export function SkincareRoutineBuilder() {
                   acneType={acneType}
                   budget={budget}
                 />
-                <Button variant="outline" onClick={() => setShowComparison(true)}>
+                <Button variant="outline" onClick={() => setShowComparison(true)} className="w-full sm:w-auto">
                   <ArrowLeftRight className="mr-2 h-4 w-4" /> Compare Products
                 </Button>
-                <Button variant="outline" onClick={() => setShowFlareUpModal(true)}>
+                <Button variant="outline" onClick={() => setShowFlareUpModal(true)} className="w-full sm:w-auto">
                   🚨 Flare-Up Mode
                 </Button>
               </div>
@@ -1290,7 +1323,7 @@ export function SkincareRoutineBuilder() {
       {/* Premium Modal */}
       {showPremiumModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={() => setShowPremiumModal(false)}>
-          <div className="bg-card rounded-2xl p-8 max-w-lg w-full" onClick={e => e.stopPropagation()}>
+          <div className="bg-card rounded-2xl p-5 sm:p-8 max-w-lg w-full" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
                 <Crown className="h-8 w-8 text-purple-600" />
@@ -1341,13 +1374,13 @@ export function SkincareRoutineBuilder() {
       {/* Flare-Up Modal */}
       {showFlareUpModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto" onClick={() => setShowFlareUpModal(false)}>
-          <div className="bg-card rounded-2xl p-8 max-w-2xl w-full my-8" onClick={e => e.stopPropagation()}>
+          <div className="bg-card rounded-2xl p-5 sm:p-8 max-w-2xl w-full my-8" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-2">
-                <span className="text-3xl">🚨</span>
-                <h2 className="text-2xl font-bold">Flare-Up Rescue Mode</h2>
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="text-2xl shrink-0">🚨</span>
+                <h2 className="text-lg sm:text-2xl font-bold truncate">Flare-Up Rescue Mode</h2>
               </div>
-              <button onClick={() => setShowFlareUpModal(false)} className="text-muted-foreground hover:text-foreground">
+              <button onClick={() => setShowFlareUpModal(false)} className="text-muted-foreground hover:text-foreground ml-2 shrink-0">
                 <X className="h-6 w-6" />
               </button>
             </div>
@@ -1404,7 +1437,7 @@ export function SkincareRoutineBuilder() {
       {/* Swap Product Modal */}
       {swapTarget && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto" onClick={() => { setSwapTarget(null); setSwapSearch(""); }}>
-          <div className="bg-card rounded-2xl p-6 max-w-lg w-full my-8 max-h-[80vh] flex flex-col" onClick={e => e.stopPropagation()}>
+          <div className="bg-card rounded-2xl p-4 sm:p-6 max-w-lg w-full my-8 max-h-[80vh] flex flex-col" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h2 className="text-xl font-bold flex items-center gap-2">

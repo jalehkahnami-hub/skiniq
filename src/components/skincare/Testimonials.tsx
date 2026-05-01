@@ -30,7 +30,7 @@ const STATS = [
 
 export function Testimonials() {
   return (
-    <section className="mx-auto max-w-6xl px-6 py-16">
+    <section className="mx-auto max-w-6xl px-4 sm:px-6 py-16">
       <div className="text-center mb-10">
         <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
           Built for real skin
